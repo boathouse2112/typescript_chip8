@@ -16,9 +16,24 @@ test("All instruction masks are 4 bytes", () => {
       expect(parameter.mask).toBeLessThanOrEqual(INSTRUCTION_MAX_VALUE);
 
       // All hex digits within the shift should be 0
-      // And the lowest shifted digit should be f
       expect(parameter.mask % 2 ** parameter.shift).toBe(0);
-      expect((parameter.mask >> parameter.shift) % 2 ** 4).toBe(0xf);
+
+      // Addresses should be 3 digits long, bytes 2, registers 1
+      // All digits of the mask should be 0xf
+      /* eslint-disable jest/no-conditional-expect */
+      switch (parameter.type) {
+        case "Address":
+          expect(parameter.mask >> parameter.shift).toBe(0xfff);
+          break;
+
+        case "Byte":
+          expect(parameter.mask >> parameter.shift).toBe(0xff);
+          break;
+
+        case "Register":
+          expect(parameter.mask >> parameter.shift).toBe(0xf);
+          break;
+      }
     });
   });
 });
