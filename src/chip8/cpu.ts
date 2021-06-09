@@ -1,3 +1,5 @@
+import { assert } from "console";
+import { HEX_DIGIT_SHIFT, OPCODE_MAX_VALUE } from "./contstants";
 import { Display } from "./display";
 import { InstructionID } from "./instruction";
 
@@ -55,8 +57,38 @@ export class CPU {
     this.display = display;
   }
 
+  // Increment PC by n, throws an error if PC would be greater than 0xfff
+  private incPC(n: number): void {
+    const newPC = this.PC + n;
+
+    if (newPC > 0xfff) {
+      throw new Error(
+        `The new PC value 0x${this.PC.toString(16)}` +
+          ` is greater than the maximum ${0xfff}.`
+      );
+    }
+    this.PC = newPC;
+  }
+
+  // Reads the 2-byte opcode at PC,
+  // Increments PC by 2
+  readOpcode(): number {
+    var byte1 = this.ram[this.PC];
+    const byte2 = this.ram[this.PC + 1];
+
+    // byte1 gets shifted 2 hex digits left, then added to byte2
+    byte1 = byte1 << (2 * HEX_DIGIT_SHIFT);
+    const opcode = byte1 + byte2;
+
+    assert(opcode >= 0);
+    assert(opcode <= OPCODE_MAX_VALUE);
+
+    this.incPC(2);
+    return opcode;
+  }
+
   // Executes the instruction with the given ID, with the given arguments
-  execute(id: InstructionID, args: number[]) {
+  execute(id: InstructionID, args: number[]): void {
     switch (id) {
       // Clear the display
       case "CLS":
@@ -98,6 +130,52 @@ export class CPU {
         this.SP += 1;
         this.stack[this.SP] = this.PC;
         this.PC = args[0];
+        return;
+
+      // Increment PC by 2 if Vx == byte
+      case "SE_VX_BYTE":
+        validateArgsLength("SE_VX_BYTE", 2, args.length);
+
+        var x = args[0];
+        var byte = args[1];
+
+        if (this.registers[x] === byte) {
+          this.incPC(2);
+        }
+        return;
+
+      // Increment PC by 2 if Vx != byte
+      case "SNE_VX_BYTE":
+        validateArgsLength("SNE_VX_BYTE", 2, args.length);
+
+        x = args[0];
+        byte = args[1];
+
+        if (this.registers[x] !== byte) {
+          this.incPC(2);
+        }
+        return;
+
+      // Increment PC by 2 if Vx == Vy
+      case "SE_VX_VY":
+        validateArgsLength("SE_VX_VY", 2, args.length);
+
+        x = args[0];
+        var y = args[1];
+
+        if (this.registers[x] === this.registers[y]) {
+          this.incPC(2);
+        }
+        return;
+
+      // Load byte into Vx
+      case "LD_VX_BYTE":
+        validateArgsLength("LD_VX_BYTE", 2, args.length);
+
+        x = args[0];
+        byte = args[1];
+
+        this.registers[x] = byte;
         return;
     }
   }

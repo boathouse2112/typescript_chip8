@@ -1,3 +1,5 @@
+import { HEX_DIGIT_SHIFT } from "./contstants";
+
 export interface Instruction {
   // Unique instruction name
   readonly id: InstructionID;
@@ -26,9 +28,6 @@ export type InstructionID =
   | "SNE_VX_BYTE"
   | "SE_VX_VY"
   | "LD_VX_BYTE";
-
-// Each byte gets shifted by 4 bits
-const BYTE_SHIFT = 4;
 
 export const INSTRUCTION_SET: readonly Instruction[] = [
   {
@@ -60,7 +59,7 @@ export const INSTRUCTION_SET: readonly Instruction[] = [
     mask: 0xf000,
     pattern: 0x3000,
     parameters: [
-      { type: "Register", mask: 0x0f00, shift: 2 * BYTE_SHIFT },
+      { type: "Register", mask: 0x0f00, shift: 2 * HEX_DIGIT_SHIFT },
       { type: "Byte", mask: 0x00ff, shift: 0 },
     ],
   },
@@ -69,7 +68,7 @@ export const INSTRUCTION_SET: readonly Instruction[] = [
     mask: 0xf000,
     pattern: 0x4000,
     parameters: [
-      { type: "Register", mask: 0x0f00, shift: 2 * BYTE_SHIFT },
+      { type: "Register", mask: 0x0f00, shift: 2 * HEX_DIGIT_SHIFT },
       { type: "Byte", mask: 0x00ff, shift: 0 },
     ],
   },
@@ -78,8 +77,8 @@ export const INSTRUCTION_SET: readonly Instruction[] = [
     mask: 0xf00f,
     pattern: 0x5000,
     parameters: [
-      { type: "Register", mask: 0x0f00, shift: 2 * BYTE_SHIFT },
-      { type: "Register", mask: 0x00f0, shift: BYTE_SHIFT },
+      { type: "Register", mask: 0x0f00, shift: 2 * HEX_DIGIT_SHIFT },
+      { type: "Register", mask: 0x00f0, shift: HEX_DIGIT_SHIFT },
     ],
   },
   {
@@ -87,7 +86,7 @@ export const INSTRUCTION_SET: readonly Instruction[] = [
     mask: 0xf000,
     pattern: 0x6000,
     parameters: [
-      { type: "Register", mask: 0x0f00, shift: 2 * BYTE_SHIFT },
+      { type: "Register", mask: 0x0f00, shift: 2 * HEX_DIGIT_SHIFT },
       { type: "Byte", mask: 0x00ff, shift: 0 },
     ],
   },
