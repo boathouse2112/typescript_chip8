@@ -1,5 +1,6 @@
 import { assert } from "console";
 import { HEX_DIGIT_SHIFT, OPCODE_MAX_VALUE } from "./contstants";
+import { decode } from "./decode";
 import { Display } from "./display";
 import { InstructionID } from "./instruction";
 
@@ -178,5 +179,12 @@ export class CPU {
         this.registers[x] = byte;
         return;
     }
+  }
+
+  // Reads and executes the next instruction
+  next() {
+    const opcode = this.readOpcode();
+    const instruction = decode(opcode);
+    this.execute(instruction.id, instruction.args);
   }
 }
